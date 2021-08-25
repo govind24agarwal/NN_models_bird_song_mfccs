@@ -114,4 +114,33 @@ def predict(model, x, y):
 
 
 if __name__ == "__main__":
-    pass
+    # get  train, validation, test splits
+    x_train, x_test, x_validation, y_train, y_test, y_validation = prepare_datasets(
+        0.25, 0.2)
+
+    # create network
+    input_shape = (x_train.shape[1], x_train.shape[2], 1)
+    model = build_model(input_shape=input_shape)
+
+    # compile model
+    optimiser = keras.optimizers.Adam(learning_rate=0.0001)
+    model.compile(optimizer=optimiser,
+                  loss="sparse_categorical_crossentropy",
+                  metrics=["accuracy"])
+
+    model.summary()
+
+    # train model
+    history = model.fit(x_train, y_train, validation_data=(
+        x_validation, y_validation), batch_size=32, epochs=30)
+
+    # plot accuraccy/error for training and validation
+    plot_history(history)
+
+    # evaluate model on test set
+    test_loss, test_acc = model.evaluate(x_test, y_test, verbose=1)
+    print("\nTest accuracy:", test_acc)
+    print("\nTest loss:", test_loss)
+
+    # predict sample
+    predict(model, x_test[9], y_test[9])  # can input any data here
